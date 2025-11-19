@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 import random as rand
 from math import log2
 
-HOST = '127.0.0.1'
 MAX_DATAGRAM_SIZE = 2 ** 1024
 POSSIBLE_SYMBOLS = ['R','E','G','G', 'I', 'N']
 
-def send_data(port: int, datagram_size: int) -> Tuple[bool, float]:
+def send_data(host: string, port: int, datagram_size: int) -> Tuple[bool, float]:
 	with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+		s.connect((host, port))
 		binary_stream = io.BytesIO()
 		for _ in range(datagram_size):
 			letter_to_be_written = POSSIBLE_SYMBOLS[rand.randint(0, len(POSSIBLE_SYMBOLS)-1)]
@@ -25,7 +25,7 @@ def send_data(port: int, datagram_size: int) -> Tuple[bool, float]:
 		start_time = time.perf_counter()
 		data = 0
 		try:
-			s.sendto(stream_data, (HOST, port))
+			s.sendto(stream_data)
 			data = s.recv(5)
 		except Exception as e:
 			print(e)
@@ -47,7 +47,7 @@ def send_data(port: int, datagram_size: int) -> Tuple[bool, float]:
 		else:
 			raise Exception("Unknown server reponse")
 
-def find_max_datagram_size(port: int, initial_size: int = 2) -> Tuple[int, np.ndarray, np.ndarray]:
+def find_max_datagram_size(host: string, port: int, initial_size: int = 2) -> Tuple[int, np.ndarray, np.ndarray]:
 	lower_bound = 0
 	test_size = initial_size
 	datagram_sizes: np.ndarray = np.array([])
@@ -57,7 +57,7 @@ def find_max_datagram_size(port: int, initial_size: int = 2) -> Tuple[int, np.nd
 		print(f"Testing doubling size: {test_size} bytes")	
 		print(f"Interation: {int(log2(test_size))}")
   
-		is_response_ok, elapsed_time = send_data(port, test_size)
+		is_response_ok, elapsed_time = send_data(host, port, test_size)
 		
 		if is_response_ok:
 			times_measured = np.append(times_measured, elapsed_time)
@@ -89,14 +89,21 @@ def find_max_datagram_size(port: int, initial_size: int = 2) -> Tuple[int, np.nd
 
 def main():
 	if len(sys.argv) < 2: 
+		print("no HOST, using localhost")
 		print("no port, using 8888")
+		host = '127.0.0.1'
+		port=8888
+	elif len(sys.argv) < 3:
+		print("no port, using 8888")
+		host = sys.argv[1]
 		port=8888
 	else:
-		port = int( sys.argv[1] )
+		host = sys.argv[1]
+		port = int( sys.argv[2] )
 
-	print("Will send to ", HOST, ":", port)
+	print("Will send to ", host, ":", port)
 
-	max_datagram_size, datagram_sizes, times_measured = find_max_datagram_size(port, 2)
+	max_datagram_size, datagram_sizes, times_measured = find_max_datagram_size(host, port, 2)
 	print(f"Max datagram size is: {max_datagram_size}")
 
 	if (len(datagram_sizes) != len(times_measured)):

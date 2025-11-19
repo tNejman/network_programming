@@ -11,7 +11,7 @@ from math import log2
 MAX_DATAGRAM_SIZE = 2 ** 1024
 POSSIBLE_SYMBOLS = ['R','E','G','G', 'I', 'N']
 
-def send_data(host: string, port: int, datagram_size: int) -> Tuple[bool, float]:
+def send_data(host: str, port: int, datagram_size: int) -> Tuple[bool, float]:
 	with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
 		s.connect((host, port))
 		binary_stream = io.BytesIO()
@@ -25,7 +25,7 @@ def send_data(host: string, port: int, datagram_size: int) -> Tuple[bool, float]
 		start_time = time.perf_counter()
 		data = 0
 		try:
-			s.sendto(stream_data)
+			s.sendall(stream_data)
 			data = s.recv(5)
 		except Exception as e:
 			print(e)
@@ -47,7 +47,7 @@ def send_data(host: string, port: int, datagram_size: int) -> Tuple[bool, float]
 		else:
 			raise Exception("Unknown server reponse")
 
-def find_max_datagram_size(host: string, port: int, initial_size: int = 2) -> Tuple[int, np.ndarray, np.ndarray]:
+def find_max_datagram_size(host: str, port: int, initial_size: int = 2) -> Tuple[int, np.ndarray, np.ndarray]:
 	lower_bound = 0
 	test_size = initial_size
 	datagram_sizes: np.ndarray = np.array([])
@@ -75,7 +75,7 @@ def find_max_datagram_size(host: string, port: int, initial_size: int = 2) -> Tu
 	while lower_bound < upper_bound:
 		midpoint = (upper_bound + lower_bound) // 2
 	
-		is_response_ok, elapsed_time = send_data(port, midpoint)
+		is_response_ok, elapsed_time = send_data(host, port, midpoint)
 	
 		if is_response_ok:
 			times_measured = np.append(times_measured, elapsed_time)
@@ -84,7 +84,7 @@ def find_max_datagram_size(host: string, port: int, initial_size: int = 2) -> Tu
 		else:
 			upper_bound = midpoint - 1
 
-	send_data(port, lower_bound)
+	send_data(host, port, lower_bound)
 	return (lower_bound, datagram_sizes, times_measured)
 
 def main():

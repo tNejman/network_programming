@@ -36,16 +36,24 @@ int main(int argc, char **argv) {
     struct addrinfo *bindto_address;
     struct addrinfo hints;
     char buf[BSIZE];
+    char port[6];
 
     struct sockaddr_storage client_addr;
     socklen_t client_addr_len;
+
+    if (argc > 1 && strlen(argv[1]) <= 5) {
+        strcpy(port, argv[1]);
+        printf("Defined user port: %s\n", port);
+    } else {
+        strcpy(port, DEF_PORT);
+    }
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET; // IPv4 
     hints.ai_socktype = SOCK_DGRAM; // UDP
     hints.ai_flags = AI_PASSIVE;
 
-    if (getaddrinfo(NULL, DEF_PORT, &hints, &bindto_address) != 0)
+    if (getaddrinfo(NULL, port, &hints, &bindto_address) != 0)
         bailout("getting local address");
 
     sock = socket(bindto_address->ai_family,
@@ -59,7 +67,7 @@ int main(int argc, char **argv) {
 
     freeaddrinfo(bindto_address);
 
-    printf("UDP server listening on port %s...\n", DEF_PORT);
+    printf("UDP server listening on port %s...\n", port);
 
     do {
         memset(buf, 0, BSIZE);

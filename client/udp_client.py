@@ -111,7 +111,7 @@ def main():
 	plt.plot(datagram_sizes, times_measured)
 	plt.xlabel("datagram size")
 	plt.ylabel("time measured")
-	plt.savefig("datagram_size_vs_time_measured.png")
+	plt.savefig("/images_saved/datagram_size_vs_time_measured.png")
 
 	print('Client finished.')
  

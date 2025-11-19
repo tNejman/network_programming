@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY udp_server.c . 
 
-RUN gcc udp_server.c -o udp_server
+RUN gcc -static udp_server.c -o udp_server
 
 FROM alpine:latest AS runner
 
@@ -14,4 +14,4 @@ EXPOSE 8888/udp
 
 COPY --from=builder /usr/src/app/udp_server /app/udp_server
 
-ENTRYPOINT [ "./udp_server" ]
+CMD [ "./udp_server" ]

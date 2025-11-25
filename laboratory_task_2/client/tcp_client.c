@@ -56,9 +56,14 @@ int main(int argc, char *argv[])
     server.sin_port = htons(server_port);
 
     printf("Connecting...\n");
-        if (connect(sock, (struct sockaddr *) &server, sizeof server) == -1) 
-            bailout("connecting stream socket");
-        printf("Connected.\n");
+    fflush(stdout);
+    if (connect(sock, (struct sockaddr *) &server, sizeof server) == -1) 
+    {
+        bailout("connecting stream socket");
+        fflush(stdout);
+    }
+    printf("Connected.\n");
+    fflush(stdout);
 
     while (1) {
         char buf_n1[BSIZE];
@@ -67,6 +72,7 @@ int main(int argc, char *argv[])
         char response[BSIZE];
 
         printf("Input operand no. 1: ");
+        fflush(stdout);
         scanf("%s", buf_n1);
         buf_n1[BSIZE-1] = '\0';
         if (write(sock, buf_n1, strlen(buf_n1)) == -1)
@@ -76,6 +82,7 @@ int main(int argc, char *argv[])
             break;
 
         printf("Input operator: ");
+        fflush(stdout);
         scanf(" %c", &buf_op[0]);
         buf_op[1] = '\0';
         if (write(sock, buf_op, 1) == -1)
@@ -84,17 +91,20 @@ int main(int argc, char *argv[])
 
 
         printf("Input operand no. 2: ");
+        fflush(stdout);
         scanf("%s", buf_n2);
         buf_n2[BSIZE-1] = '\0';
         if (write(sock, buf_n2, strlen(buf_n2)) == -1)
             bailout("writing num2");
 
         printf("Performed opeartion: %s %s %s\n", buf_n1, buf_op, buf_n2);
+        fflush(stdout);
 
         memset(response, 0, BSIZE);
         if (read(sock, response, BSIZE) == -1)
             bailout("reading from socket");
         printf("Server response: %s\n", response);
+        fflush(stdout);
     }
 
     close(sock);

@@ -5,13 +5,11 @@ NETWORK_NAME="${TEAM_PREFIX}_network"
 
 VOLUME_NAME="${TEAM_PREFIX}_client_volume"
 
-SERVER_IMAGE_TAG="${TEAM_PREFIX}_udp_server"
-CLIENT_IMAGE_TAG="${TEAM_PREFIX}_udp_client"
+SERVER_IMAGE_TAG="${TEAM_PREFIX}_tcp_server"
+CLIENT_IMAGE_TAG="${TEAM_PREFIX}_tcp_client"
 
 SERVER_CONTAINER_NAME="${TEAM_PREFIX}_server"
 CLIENT_CONTAINER_NAME="${TEAM_PREFIX}_client"
-
-docker volume rm "${VOLUME_NAME}" 2>/dev/null
 
 docker rm -f "${SERVER_CONTAINER_NAME}" 2>/dev/null
 docker rm -f "${CLIENT_CONTAINER_NAME}" 2>/dev/null

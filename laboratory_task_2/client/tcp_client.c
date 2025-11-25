@@ -54,14 +54,6 @@ int main(int argc, char *argv[])
     }
 
     server.sin_port = htons(server_port);
-// #elif defined(USE_ARGS)
-//     if (argc < 3) Usage();
-//     inet_aton( argv[1], &server.sin_addr );
-//     server.sin_port = htons(atoi(argv[2]));
-// #else
-//     inet_aton( DEFAULT_SRV_IP, &server.sin_addr );
-//     server.sin_port = htons(DEFAULT_PORT);
-// #endif
 
     printf("Connecting...\n");
         if (connect(sock, (struct sockaddr *) &server, sizeof server) == -1) 

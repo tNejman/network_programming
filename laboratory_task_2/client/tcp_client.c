@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
         printf("Input operand no. 1: ");
         scanf("%s", buf_n1);
-        buf_n1[BUFSIZ-1] == '\0';
+        buf_n1[BSIZE-1] = '\0';
         if (write(sock, buf_n1, strlen(buf_n1)) == -1)
             bailout("writing num1");
 
@@ -76,14 +76,16 @@ int main(int argc, char *argv[])
             break;
 
         printf("Input operator: ");
-        scanf("%s", buf_op);
-        buf_n1[BUFSIZ-1] == '\0';
-        if (write(sock, buf_op, strlen(buf_op)) == -1)
-            bailout("writing operator");
+        scanf(" %c", &buf_op[0]);
+        buf_op[1] = '\0';
+        if (write(sock, buf_op, 1) == -1)
+            bailout("writing operator");\
+        
+
 
         printf("Input operand no. 2: ");
         scanf("%s", buf_n2);
-        buf_n2[BUFSIZ-1] == '\0';
+        buf_n2[BSIZE-1] = '\0';
         if (write(sock, buf_n2, strlen(buf_n2)) == -1)
             bailout("writing num2");
 

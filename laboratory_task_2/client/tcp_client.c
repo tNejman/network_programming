@@ -12,7 +12,7 @@
 #define DATA "Half a league, half a league . . ."
 #define _USE_RESOLVER
 #define _USE_ARGS
-#define DEFAULT_PORT 8000
+#define DEFAULT_PORT 8888
 #define DEFAULT_SRV_IP "127.0.0.1"
 
 #define BSIZE 1024

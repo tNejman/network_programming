@@ -66,15 +66,15 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
     while (1) {
-        char buf_n1[BSIZE];
-        char buf_op[BSIZE];
-        char buf_n2[BSIZE];
+        char buf_n1[2];
+        char buf_op[2];
+        char buf_n2[2];
         char response[BSIZE];
 
         printf("Input operand no. 1: ");
         scanf("%s", buf_n1);
         buf_n1[BSIZE-1] = '\0';
-        if (write(sock, buf_n1, strlen(buf_n1)) == -1)
+        if (send(sock, buf_n1, strlen(buf_n1), 0) == -1)
             bailout("writing num1");
 
         if (buf_n1[0] == 'q') 
@@ -83,20 +83,22 @@ int main(int argc, char *argv[])
         printf("Input operator: ");
         scanf("%s", buf_op);
         buf_op[1] = '\0';
-        if (write(sock, buf_op, 1) == -1)
+        if (send(sock, buf_op, strlen(buf_op), 0) == -1)
             bailout("writing operator");\
 
         printf("Input operand no. 2: ");
         scanf("%s", buf_n2);
         buf_n2[BSIZE-1] = '\0';
-        if (write(sock, buf_n2, strlen(buf_n2)) == -1)
+        if (send(sock, buf_n2, strlen(buf_n2), 0) == -1)
             bailout("writing num2");
 
         printf("Performed opeartion: %s %s %s\n", buf_n1, buf_op, buf_n2);
 
         memset(response, 0, BSIZE);
-        if (read(sock, response, BSIZE) == -1)
+        int ret_code = recv(sock, response, BSIZE, 0);
+        if (ret_code == -1)
             bailout("reading from socket");
+        printf("Return code: %d\n", ret_code);
         printf("Server response: %s\n", response);
     }
 

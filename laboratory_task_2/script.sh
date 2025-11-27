@@ -31,7 +31,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-docker create --name "${SERVER_CONTAINER_NAME}" --network "${NETWORK_NAME}" "${SERVER_IMAGE_TAG}"
+docker create -p 8888:8888 --name "${SERVER_CONTAINER_NAME}" --network "${NETWORK_NAME}" "${SERVER_IMAGE_TAG}"
 
 if [ $? -ne 0 ]; then   
     echo "Błąd tworzenia kontenera serwera"
@@ -39,6 +39,7 @@ if [ $? -ne 0 ]; then
 fi
 
 docker create \
+    -it \
     --name "${CLIENT_CONTAINER_NAME}" \
     --network "${NETWORK_NAME}" \
     "${CLIENT_IMAGE_TAG}" "${SERVER_CONTAINER_NAME}"

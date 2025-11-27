@@ -43,10 +43,7 @@ int main(int argc, char *argv[])
 
     server.sin_family = AF_INET;
 
-    if (argc < 2) Usage();
-
-    hp = gethostbyname2( server_ip, AF_INET );
-    /* hostbyname() returns a struct with resolved host address  */
+    hp = gethostbyname2( server_ip, AF_INET);
     if (hp == (struct hostent *) 0) {
         errx(2, "%s: unknown host\n", argv[1]);
     } else {
@@ -56,19 +53,16 @@ int main(int argc, char *argv[])
     server.sin_port = htons(server_port);
 
     printf("Connecting...\n");
-    fflush(stdout);
     if (connect(sock, (struct sockaddr *) &server, sizeof server) == -1) 
     {
         bailout("connecting stream socket");
-        fflush(stdout);
     }
     printf("Connected.\n");
-    fflush(stdout);
 
     while (1) {
-        char buf_n1[2];
-        char buf_op[2];
-        char buf_n2[2];
+        char buf_n1[BSIZE];
+        char buf_op[BSIZE];
+        char buf_n2[BSIZE];
         char response[BSIZE];
 
         printf("Input operand no. 1: ");
@@ -82,7 +76,7 @@ int main(int argc, char *argv[])
 
         printf("Input operator: ");
         scanf("%s", buf_op);
-        buf_op[1] = '\0';
+        buf_op[BSIZE-1] = '\0';
         if (send(sock, buf_op, strlen(buf_op), 0) == -1)
             bailout("writing operator");\
 

@@ -9,6 +9,7 @@
 #include <err.h>
 #include <netdb.h>
 #include <errno.h>
+#include <openssl/sha.h>
 
 #define DEFAULT_SRV_IP "127.0.0.1"
 #define DEFAULT_PORT 8888
@@ -101,8 +102,10 @@ int main(int argc, char *argv[]) {
             recv_buf[recv_len] = '\0';
             printf("Received ACK: %s\n", recv_buf);
 
-            is_packet_sent[current_pkt] = 1;
-            ++current_pkt; 
+            if (memcmp(recv_buf, &current_pkt, sizeof(int)) == 0) {
+                is_packet_sent[current_pkt] = 1;
+                ++current_pkt; 
+            }
         } 
         else {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -112,6 +115,17 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+
+    unsigned char hash_digest[SHA256_DIGEST_LENGTH];
+    if (SHA256((const unsigned char *)data, DATA_SIZE, hash_digest) == NULL) {
+        fprintf(stderr, "SHA256 calculation failed.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        printf("%02x", data[i]);
+    }
+    printf("Done\n");
 
     close(sock);
     return 0;

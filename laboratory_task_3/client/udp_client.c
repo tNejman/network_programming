@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < DATA_SIZE; ++i) {
         data[i] = RANDOM_LETTER_POOL[rand() % sizeof(RANDOM_LETTER_POOL)];
     }
+    data[DATA_SIZE-1] = '\0';
 
     int current_pkt = 0;
 
@@ -83,14 +84,16 @@ int main(int argc, char *argv[]) {
         memset(recv_buf, 0, BSIZE);
 
         int offset = current_pkt * DATA_PER_PACKET;
+        uint32_t pkt_net = htonl((uint32_t)current_pkt);
 
-        memcpy(buf, &current_pkt, sizeof(int));
+        memcpy(buf, &pkt_net, sizeof(int));
         memcpy(buf + HEADER_SIZE, data + offset, DATA_PER_PACKET);
         
         int total_len = HEADER_SIZE + DATA_PER_PACKET;
 
         printf("Sending Packet %d/%d (%d bytes)...\n", current_pkt, PACKET_COUNT, total_len);
-        printf("Packet content: %.*s", DATA_PER_PACKET+1, buf);
+        //printf("Packet content: %.*s", DATA_PER_PACKET+1, buf);
+        printf("Packet content: %.*s\n", DATA_PER_PACKET + 1 - 4, buf + 4);
 
         if (sendto(sock, buf, total_len, 0, (struct sockaddr*) &server, slen) == -1) {
             bailout("sendto()");
@@ -100,9 +103,14 @@ int main(int argc, char *argv[]) {
 
         if (recv_len > 0) {
             recv_buf[recv_len] = '\0';
-            printf("Received ACK: %s\n", recv_buf);
+            
 
-            if (memcmp(recv_buf, &current_pkt, sizeof(int)) == 0) {
+            uint32_t ack_net;
+            memcpy(&ack_net, recv_buf, sizeof(ack_net));
+            int ack = (int)ntohl(ack_net);
+            printf("Received ACK: %d \n", ack);
+
+            if (memcmp(&ack, &current_pkt, sizeof(int)) == 0) {
                 is_packet_sent[current_pkt] = 1;
                 ++current_pkt; 
             }
@@ -123,8 +131,9 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        printf("%02x", data[i]);
+        printf("%02x", hash_digest[i]);
     }
+    printf("\n");
     printf("Done\n");
 
     close(sock);

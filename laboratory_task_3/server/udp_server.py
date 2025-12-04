@@ -18,7 +18,7 @@ def process_packet(data):
         return None
     number = struct.unpack(">i", data[:4])[0]
     payload = data[4:4+PAYLOAD_SIZE]
-    if (number <= 0 or number > PACKETS_NUM):
+    if (number < 0 or number >= PACKETS_NUM):
         print("Incorrect file index: ", number)
         return None
     
@@ -49,10 +49,10 @@ def main():
             if result is None:
                 continue
             packet_id, payload = result
-            start_i = PAYLOAD_SIZE*(packet_id-1)
+            start_i = PAYLOAD_SIZE*(packet_id)
             end_i = start_i + PAYLOAD_SIZE
             file_bytes[start_i:end_i] = payload
-            is_received[packet_id-1] = True
+            is_received[packet_id] = True
 
             send_ok_response(s, addr, packet_id)
 

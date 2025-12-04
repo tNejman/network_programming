@@ -78,6 +78,9 @@ int main(int argc, char *argv[]) {
 
     int current_pkt = 0;
 
+    printf("\n<<< PRESS ENTER TO START PACKET TRANSMISSION >>>\n");
+    while (getchar() != '\n');
+
     while(current_pkt < PACKET_COUNT) {
         memset(buf, 0, BSIZE);
         memset(recv_buf, 0, BSIZE);

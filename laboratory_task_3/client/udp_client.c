@@ -45,6 +45,9 @@ int main(int argc, char *argv[]) {
     tv.tv_sec = 0;
     tv.tv_usec = TIMEOUT_S * 1000;
 
+    printf("Sleeping for 10 seconds...\n");
+    sleep(10);
+
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock == -1)
         bailout("opening stream socket");
@@ -79,8 +82,8 @@ int main(int argc, char *argv[]) {
 
     int current_pkt = 0;
 
-    printf("\n<<< PRESS ENTER TO START PACKET TRANSMISSION >>>\n");
-    while (getchar() != '\n');
+    // printf("\n<<< PRESS ENTER TO START PACKET TRANSMISSION >>>\n");
+    // while (getchar() != '\n');
 
     while(current_pkt < PACKET_COUNT) {
         memset(buf, 0, BSIZE);

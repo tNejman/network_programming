@@ -2,7 +2,7 @@ services:
   server:
     container_name: z38_server
     build: ./server/
-    image: z38_tcp_server:latest
+    image: z38_udp_server:latest
     ports:
       - "8888:8888"
     networks:
@@ -13,11 +13,11 @@ services:
   client:
     container_name: z38_client
     build: ./client/
-    image: z38_tcp_client:latest
+    image: z38_udp_client:latest
     tty: true
     networks:
       - z38_network
-    command: z38_server
+    command: ["/bin/sh", "-c", "sleep 3 && z38_server"]
 
 networks:
   z38_network:

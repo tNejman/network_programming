@@ -6,18 +6,20 @@ services:
     build: ./server/
     image: z38_tcp_server:latest
     ports:
-      - "8888:8888" 
+      - "8888:8888"
     networks:
-      - z38_network
+      z38_network:
+        aliases:
+          - z38_server
 
   client:
     container_name: z38_client
     build: ./client/
     image: z38_tcp_client:latest
-    tty: true 
+    tty: true
     networks:
       - z38_network
-    command: z38_server 
+    command: z38_server
 
 networks:
   z38_network:

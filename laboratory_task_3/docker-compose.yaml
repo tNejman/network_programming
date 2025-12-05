@@ -17,7 +17,7 @@ services:
     tty: true
     networks:
       - z38_network
-    command: ["/bin/sh", "-c", "sleep 3 && z38_server"]
+    command: ["sleep 3 && z38_server"]
 
 networks:
   z38_network:

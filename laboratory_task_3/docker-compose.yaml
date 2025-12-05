@@ -15,9 +15,11 @@ services:
     build: ./client/
     image: z38_udp_client:latest
     tty: true
+    cap_add:
+        - NET_ADMIN
     networks:
       - z38_network
-    command: ["sleep 3 && z38_server"]
+    command: z38_server
 
 networks:
   z38_network:

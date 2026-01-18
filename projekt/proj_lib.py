@@ -2,6 +2,7 @@ import struct
 import hashlib
 import hmac
 import sys
+import secrets
 
 MESSAGE_HMAC_SIZE = 28
 MESSAGE_TYPE_SIZE = 4
@@ -18,6 +19,8 @@ CLIENT_HELLO_BYTE_SIZE = 28
 SERVER_HELLO_BYTE_SIZE = 12
 CLIENT_HELLO_SIGNATURE = "HELO"
 SEVER_HELLO_SIGNATURE = "EHLO"
+
+MAX_RANDINT_EXCLUSIVE = 1_000_000
 
 def get_derived_seed(K, suffix):
     raw = f"{K}_{suffix}".encode()
@@ -99,3 +102,6 @@ def recive_encrypted_message(conn, prng_decoder, K, addr):
 def log(message):
     sys.stdout.write(f"\r{message}\n> ")
     sys.stdout.flush()
+    
+def generate_cryptographically_safe_randint() -> int:
+    return secrets.randbelow(MAX_RANDINT_EXCLUSIVE)

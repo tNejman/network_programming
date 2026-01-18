@@ -27,9 +27,9 @@ def receive_loop(sock, prng_decoder, K):
 def simple_tcp_client(host: str, port: int):
     global running
 
-    p = 23
-    g = 5
-    a_priv = 6
+    p = generate_cryptographically_safe_randint()
+    g = generate_cryptographically_safe_randint()
+    a_priv = generate_cryptographically_safe_randint()
     A = pow(g, a_priv, p)
 
     sock = None

@@ -30,7 +30,7 @@ def handle_client(conn, addr):
             log(f"[BLAD] Nieprawidłowa sygnatura od {addr}")
             return
 
-        b_priv = 15
+        b_priv = generate_cryptographically_safe_randint()
         B = pow(g, b_priv, p)
         K = pow(A, b_priv, p)
         
@@ -52,7 +52,7 @@ def handle_client(conn, addr):
         log(f"[{addr}] Handshake OK. Klucz ustalony.")
 
         continue_communication = True
-        while continue_communication:            
+        while continue_communication:
             continue_communication = recive_encrypted_message(conn, prng_decoder, K, addr)
 
     except RuntimeError:

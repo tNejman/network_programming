@@ -1,8 +1,7 @@
-import socket
 import struct
-import random
 import hashlib
 import hmac
+import sys
 
 MESSAGE_HMAC_SIZE = 28
 MESSAGE_TYPE_SIZE = 4
@@ -21,7 +20,6 @@ CLIENT_HELLO_SIGNATURE = "HELO"
 SEVER_HELLO_SIGNATURE = "EHLO"
 
 def get_derived_seed(K, suffix):
-    """Tworzy deterministyczny seed na podstawie K i unikalnego sufiksu"""
     raw = f"{K}_{suffix}".encode()
     return int(hashlib.sha256(raw).hexdigest(), 16)
 
@@ -97,3 +95,7 @@ def recive_encrypted_message(conn, prng_decoder, K, addr):
         print(f"\n[{addr}] BŁĄD INTEGRALNOŚCI! Odrzucono wiadomość.")
         return False
     return True
+
+def log(message):
+    sys.stdout.write(f"\r{message}\n> ")
+    sys.stdout.flush()

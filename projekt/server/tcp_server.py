@@ -14,7 +14,7 @@ active_clients_map = {}
 map_lock = threading.Lock()
 
 def handle_client(conn, addr):
-    print(f"[NOWY] Połączono z {addr}")
+    log(f"[NOWY] Połączono z {addr}")
     prng_decoder = None
     prng_encoder = None
     K = None
@@ -27,7 +27,7 @@ def handle_client(conn, addr):
         sig, p, g, A = struct.unpack('!4sQQQ', header_data)
         
         if sig != CLIENT_HELLO_SIGNATURE.encode():
-            print(f"[BLAD] Nieprawidłowa sygnatura od {addr}")
+            log(f"[BLAD] Nieprawidłowa sygnatura od {addr}")
             return
 
         b_priv = 15
@@ -49,7 +49,7 @@ def handle_client(conn, addr):
 
         response = struct.pack('!4sQ', SEVER_HELLO_SIGNATURE.encode(), B)
         conn.sendall(response)
-        print(f"[{addr}] Handshake OK. Klucz ustalony.")
+        log(f"[{addr}] Handshake OK. Klucz ustalony.")
 
         continue_communication = True
         while continue_communication:            
@@ -59,32 +59,32 @@ def handle_client(conn, addr):
         pass
     except Exception as e:
         if "Bad file descriptor" not in str(e) and "closed" not in str(e):
-            print(f"[{addr}] Błąd obsługi: {e}")
+            log(f"[{addr}] Błąd obsługi: {e}")
     finally:
         with map_lock:
             if addr in active_clients_map:
                 del active_clients_map[addr]
         conn.close()
-        print(f"[ROZLACZONO] {addr}")
+        log(f"[ROZLACZONO] {addr}")
 
 def admin_console():
     """Wątek do wysyłania wiadomości z serwera do klientów"""
     
-    def print_help():
-        print("--- Konsola Administratora ---")
-        print("Format: <ID> <Wiadomość>")
-        print("Wpisz 'list', aby zobaczyć klientów.")
-        print("Wpisz 'exit', aby zakończyć wszystkie sesje i zakończyć program.")
-        print("Wpisz 'help', aby ponownie wyświetlić tę listę możliwych operacji.")
+    def log_help():
+        log("--- Konsola Administratora ---")
+        log("Format: <ID> <Wiadomość>")
+        log("Wpisz 'list', aby zobaczyć klientów.")
+        log("Wpisz 'exit', aby zakończyć wszystkie sesje i zakończyć program.")
+        log("Wpisz 'help', aby ponownie wyświetlić tę listę możliwych operacji.")
     
-    print_help()
+    log_help()
     while True:
         try:
-            command = input("> ")
+            command = input()
             if not command: continue
             
             if command.strip() == "help":
-                print_help()
+                log_help()
                 continue
             
             if command.strip() == "exit":
@@ -99,32 +99,32 @@ def admin_console():
                                 CONTENT_END_SESSION.encode()
                             )
                         except Exception as e:
-                            print(f"Błąd przy rozłączaniu klienta: {e}")
+                            log(f"Błąd przy rozłączaniu klienta: {e}")
                             
-                    print("Ended all sessions")
+                    log("Ended all sessions")
                     os._exit(0)
             
             if command.strip() == "list":
                 if len(active_clients_map) == 0:
-                    print("Brak aktywnych klientów")
+                    log("Brak aktywnych klientów")
                     continue
                 with map_lock:
-                    print(f"Aktywni klienci:")
+                    log(f"Aktywni klienci:")
                     for idx, addr in enumerate(active_clients_map.keys()):
-                        print(f"[{idx}] {addr}")
+                        log(f"[{idx}] {addr}")
                 continue
             
 
             parts = command.split(' ', 1)
             if len(parts) < 2:
-                print("Błędny format. Użyj: <ID_z_listy> <Wiadomość>")
+                log("Błędny format. Użyj: <ID_z_listy> <Wiadomość>")
                 continue
             
             try:
                 target_idx = int(parts[0])
                 msg_content = parts[1]
             except ValueError:
-                print("ID musi być liczbą.")
+                log("ID musi być liczbą.")
                 continue
 
             target_addr = None
@@ -147,7 +147,7 @@ def admin_console():
                             msg_content.encode()
                         )
                     except Exception as e:
-                        print(f"Błąd wysyłania ENDSSION do {target_addr}: {e}")
+                        log(f"Błąd wysyłania ENDSSION do {target_addr}: {e}")
 
                     with map_lock:
                         try:
@@ -156,7 +156,7 @@ def admin_console():
                             pass
                         if target_addr in active_clients_map:
                             del active_clients_map[target_addr]
-                    print(f"[Serwer -> {target_addr}]: Wysłano ENDSSION. Zakończono połączenie.")
+                    log(f"[Serwer -> {target_addr}]: Wysłano ENDSSION. Zakończono połączenie.")
                 else:
                     try:
                         send_encrypted_message(
@@ -167,15 +167,15 @@ def admin_console():
                             msg_content.encode()
                         )
                     except Exception as e:
-                        print(f"Błąd wysyłania wiadomości do {target_addr}")
-                    print(f"[Serwer -> {target_addr}]: Wysłano.")
+                        log(f"Błąd wysyłania wiadomości do {target_addr}")
+                    log(f"[Serwer -> {target_addr}]: Wysłano.")
             else:
-                print("Klient nie istnieje.")
+                log("Klient nie istnieje.")
 
         except EOFError:
             break
         except Exception as e:
-            print(f"Błąd konsoli: {e}")
+            log(f"Błąd konsoli: {e}")
 
 def start_server(host, port, max_clients):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -183,11 +183,11 @@ def start_server(host, port, max_clients):
     try:
         server.bind((host, port))
     except PermissionError:
-        print(f"[Błąd] brak uprawnień do portu {port}")
+        log(f"[Błąd] brak uprawnień do portu {port}")
         return
     
     server.listen(5) 
-    print(f"[START] Serwer nasłuchuje na {host}:{port}")
+    log(f"[START] Serwer nasłuchuje na {host}:{port}")
 
     admin_thread = threading.Thread(target=admin_console)
     admin_thread.daemon = True
@@ -198,7 +198,7 @@ def start_server(host, port, max_clients):
             conn, addr = server.accept()
             
             if threading.active_count() - 2 >= max_clients:
-                print(f"[ODRZUCONO] {addr} - Serwer pełny")
+                log(f"[ODRZUCONO] {addr} - Serwer pełny")
                 conn.close()
                 continue
 
@@ -206,7 +206,7 @@ def start_server(host, port, max_clients):
             thread.daemon = True
             thread.start()
     except KeyboardInterrupt:
-        print("Zamykanie serwera...")
+        log("Zamykanie serwera...")
     finally:
         server.close()
 
@@ -215,4 +215,4 @@ if __name__ == "__main__":
     parser.add_argument('max_clients', type=int, help='Maksymalna liczba jednoczesnych klientów')
     args = parser.parse_args()
 
-    start_server('127.0.0.1', 5555, args.max_clients)
+    start_server('0.0.0.0', 5000, args.max_clients)

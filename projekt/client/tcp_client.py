@@ -80,7 +80,10 @@ def simple_tcp_client(host: str, port: int):
     except ConnectionRefusedError:
         log("[Błąd] Nie można połączyć się z serwerem.")
     except Exception as e:
-        log(f"[Błąd] Wyjątek: {e}")
+        if "Errno 104" in str(e):
+            log(f"[Błąd] Serwer osiągął maksymalną liczbę połączeń.")
+        else:
+            log(f"[Błąd] Wyjątek: {e}")
     finally:
         running = False
         if sock:

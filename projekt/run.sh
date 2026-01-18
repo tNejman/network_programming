@@ -1,15 +1,16 @@
 #!/bin/bash
 
 N_CLIENTS=${1:-1}
+NUM_CLIENT_CONTAINERS=${2:-$1}
 SERVER_PORT=5000
 NET_NAME="tcp_net"
 
 if grep -qEi "(Microsoft|WSL)" /proc/version; then
     IS_WSL=1
-    echo "--- Detected Environment: WSL ---"
+    echo "Detected Environment: WSL"
 else
     IS_WSL=0
-    echo "--- Detected Environment: Native Linux ---"
+    echo "Detected Environment: Native Linux"
 fi
 
 echo "--- Cleaning up ---"
@@ -30,11 +31,11 @@ docker run -dit \
 echo "Server started. Waiting 2s..."
 sleep 2
 
-echo "--- Launching $N_CLIENTS Clients ---"
+echo "--- Launching $NUM_CLIENT_CONTAINERS Clients ---"
 
 CLIENT_CMD="docker run -it --rm --network $NET_NAME tcp_client_img $SERVER_PORT; read -p 'Press Enter to close...' var"
 
-for (( i=1; i<=$N_CLIENTS; i++ ))
+for (( i=1; i<=$NUM_CLIENT_CONTAINERS; i++ ))
 do
    echo "Spawning Client $i..."
    
